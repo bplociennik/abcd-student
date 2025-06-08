@@ -12,12 +12,6 @@ pipeline {
                 }
             }
         }
-        stage('Example') {
-            steps {
-                echo 'Hello!'
-                sh 'ls -la'
-            }
-        }
         
         stage('[ZAP] Baseline passive-scan') {
             steps {
@@ -35,7 +29,7 @@ pipeline {
                 // Uruchomienie kontenera ZAP
                 sh '''
                     docker run -d --name zap ghcr.io/zaproxy/zaproxy:stable \
-                    sleep 20
+                    sleep 9999
                 '''
                 
                 // Dodanie folderów do kontenera ZAP
@@ -44,7 +38,7 @@ pipeline {
                 '''
                 
                 // Skopiuj plik passive_scan do kontenera ZAP
-                sh 'docker cp zap/passive_scan.yaml zap:/zap/wrk/passive_scan.yaml:rw'
+                sh 'docker cp zap/passive_scan.yaml zap:/zap/wrk/passive_scan.yaml'
 
                 // Wykonaj skan
                 sh '''
