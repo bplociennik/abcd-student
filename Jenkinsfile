@@ -13,6 +13,25 @@ pipeline {
             }
         }
         
+        stage('TruffleHog Scan') {
+            steps {
+                // Utwórz katalog na wyniki
+                sh 'mkdir -p results/'
+                
+                // Uruchom TruffleHog
+                sh '''
+                   trufflehog git file://. --only-verified \
+                   --json > results/trufflehog_report.json || true
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: 'results/trufflehog_report.json', allowEmptyArchive: true
+                }
+            }
+        }
+        
         stage('[ZAP] Baseline passive-scan') {
             steps {
                 // Utwórz katalog na wyniki
