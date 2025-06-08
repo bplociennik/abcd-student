@@ -55,8 +55,6 @@ pipeline {
             post {
                 always {
                     sh '''
-                        docker exec zap bash -c "ls /zap/wrk/reports"
-                        docker logs zap || true
                         docker cp zap:/zap/wrk/reports/zap_html_report.html ${WORKSPACE}/results/zap_html_report.html || true
                         docker stop zap || true
                         docker rm zap || true
