@@ -38,6 +38,11 @@ pipeline {
                     sleep 20
                 '''
                 
+                // Dodanie folderów do kontenera ZAP
+                sh '''
+                    docker exec zap mkdir -p /zap/wrk/reports
+                '''
+                
                 // Skopiuj plik passive_scan do kontenera ZAP
                 sh 'docker cp zap/passive_scan.yaml zap:/zap/wrk/passive_scan.yaml:rw'
 
