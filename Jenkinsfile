@@ -32,7 +32,7 @@ pipeline {
             }
         }
         
-        stage('[ZAP] Baseline passive-scan') {
+        stage('ZAP Passive-scan') {
             steps {
                 // Utwórz katalog na wyniki
                 sh 'mkdir -p results/'
@@ -113,5 +113,31 @@ pipeline {
                 }
             }
         }
+        
+        stage('Semgrep Analysis') {
+            steps {
+                // Utwórz katalog na wyniki
+                sh 'mkdir -p results/'
+
+                // Instalacja Semgrep
+                sh '''
+                    if ! command -v semgrep &> /dev/null; then
+                        pip install semgrep
+                    fi
+                '''
+
+                // Odpal skanowanie
+                sh '''
+                    semgrep --config auto --json > results/semgrep_report.json || true
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: 'results/semgrep_report.json', allowEmptyArchive: true
+                }
+            }
+        }
+        
     }
 }
