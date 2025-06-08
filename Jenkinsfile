@@ -24,6 +24,9 @@ pipeline {
                 // Utwórz katalog na wyniki
                 sh 'mkdir -p results/'
                 
+                // TODO: TEMP solution for conflict names
+                sh 'docker rm -f juice-shop || true'
+                
                 // Odpalenie aplikacji Juice Shop
                 sh '''
                     docker run --name juice-shop -d --rm \
