@@ -24,7 +24,7 @@ pipeline {
                 // Utwórz katalog na wyniki
                 sh 'mkdir -p results/'
                 
-                // Odpalenie aplikacji Juice Shop
+                // Uruchomienie kontenera Juice Shop
                 sh '''
                     docker run --name juice-shop -d --rm \
                         -p 3000:3000 \
@@ -34,12 +34,13 @@ pipeline {
 
                 // Uruchomienie kontenera ZAP
                 sh '''
-                    docker run -d --name zap -t ghcr.io/zaproxy/zaproxy:stable \
-                    --add-host=host.docker.internal:host-gateway \
-                    -v ${WORKSPACE}/zap/passive_scan.yaml:/zap/wrk/passive_scan.yaml:rw \
-                    sleep 1000
+                    docker run -d --name zap ghcr.io/zaproxy/zaproxy:stable \
+                    sleep 20
                 '''
                 
+                // Skopiuj plik passive_scan do kontenera ZAP
+                sh 'docker cp zap/passive_scan.yaml zap:/zap/wrk/passive_scan.yaml:rw'
+
                 // Wykonaj skan
                 sh '''
                     docker exec zap bash -c "
