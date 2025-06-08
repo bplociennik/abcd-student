@@ -64,5 +64,35 @@ pipeline {
                 }
             }
         }
+        
+        stage('OSV Scanner') {
+            steps {
+                // Utwórz katalog na wyniki
+                sh 'mkdir -p results/'
+
+                // Pobierz OSV-Scanner
+                sh '''
+                    if ! command -v osv-scanner &> /dev/null; then
+                        curl -sSL https://github.com/google/osv-scanner/releases/download/v1.0.0/osv-scanner-linux-amd64 -o /usr/local/bin/osv-scanner
+                        chmod +x /usr/local/bin/osv-scanner
+                    fi
+                '''
+
+                // Uruchom skanowanie
+                sh '''
+                    if [ -f package-lock.json ]; then
+                          osv-scanner scan --lockfile package-lock.json > results/osv_scan_report.json || true
+                    else
+                        echo "package-lock.json not found. Skipping OSV scan."
+                    fi
+                '''
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: 'results/osv_scan_report.json', allowEmptyArchive: true
+                }
+            }
+        }
     }
 }
