@@ -32,18 +32,23 @@ pipeline {
                     sleep 5
                 '''
 
-                // Uruchomienie pasywnego skanowania ZAP
+                // Uruchomienie kontenera ZAP
                 sh '''
-                    docker run --name zap \
-                        --add-host=host.docker.internal:host-gateway \
-                        -v ${WORKSPACE}/zap/passive_scan.yaml:/zap/wrk/passive_scan.yaml:rw \
-                        -t ghcr.io/zaproxy/zaproxy:stable bash -c "
+                    docker run -d --name zap -t ghcr.io/zaproxy/zaproxy:stable \
+                    --add-host=host.docker.internal:host-gateway \
+                    -v ${WORKSPACE}/zap/passive_scan.yaml:/zap/wrk/passive_scan.yaml:rw \
+                    sleep 1000
+                '''
+                
+                // Wykonaj skan
+                sh '''
+                    docker exec zap bash -c "
                         zap.sh -cmd -addonupdate;
                         zap.sh -cmd -addoninstall communityScripts;
                         zap.sh -cmd -addoninstall pscanrulesAlpha;
                         zap.sh -cmd -addoninstall pscanrulesBeta;
-                        zap.sh -cmd -autorun /zap/wrk/passive_scan.yaml" \
-                        || true
+                        zap.sh -cmd -autorun /zap/wrk/passive_scan.yaml
+                        "
                 '''
             }
 
